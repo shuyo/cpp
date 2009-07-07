@@ -15,7 +15,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
   if (argc > 1) {
     HWND wnd = FindWindow(argv[1], NULL);
-    result = SetForegroundWindow(wnd);
+    HWND app = GetWindow(wnd,GW_OWNER);
+    if (IsIconic(app)) ShowWindow(app, SW_SHOWNORMAL);
+    result = SetForegroundWindow(app);
   }
   if (result == 0 && argc > 2) {
     PROCESS_INFORMATION pi;
