@@ -1,5 +1,5 @@
 require "mkmf"
-$CFLAGS="-fno-operator-names"
+$CFLAGS="-g -fno-operator-names"
 $LDFLAGS = "-lstdc++"
 create_makefile("RXbyak")
 
