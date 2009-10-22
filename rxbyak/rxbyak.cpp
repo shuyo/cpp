@@ -9,6 +9,7 @@
 #include <ruby.h>
 #define RB_FUNC(f) reinterpret_cast<VALUE (*)(...)>(f)
 
+#define RXBYAK_GENERATOR(s, x) RXbyakGenerator* x;Data_Get_Struct(s, RXbyakGenerator, x)
 
 
 /**
@@ -146,9 +147,51 @@ public:
         mulsd(dest, src);
     }
 
-    void _ret() {
-        ret();
-    }
+    void _ret(int imm = 0) { ret(imm); }
+    void _aaa() { aaa(); }
+    void _aad() { aad(); }
+    void _aam() { aam(); }
+    void _aas() { aas(); }
+    void _daa() { daa(); }
+    void _das() { das(); }
+    void _popad() { popad(); }
+    void _popfd() { popfd(); }
+    void _pusha() { pusha(); }
+    void _pushad() { pushad(); }
+    void _pushfd() { pushfd(); }
+    void _popa() { popa(); }
+    void _cbw() { cbw(); }
+    void _cdq() { cdq(); }
+    void _clc() { clc(); }
+    void _cld() { cld(); }
+    void _cli() { cli(); }
+    void _cmc() { cmc(); }
+    void _cpuid() { cpuid(); }
+    void _cwd() { cwd(); }
+    void _cwde() { cwde(); }
+    void _lahf() { lahf(); }
+    void _lock() { lock(); }
+    void _nop() { nop(); }
+    void _sahf() { sahf(); }
+    void _stc() { stc(); }
+    void _std() { std(); }
+    void _sti() { sti(); }
+    void _emms() { emms(); }
+    void _pause() { pause(); }
+    void _sfence() { sfence(); }
+    void _lfence() { lfence(); }
+    void _mfence() { mfence(); }
+    void _monitor() { monitor(); }
+    void _mwait() { mwait(); }
+    void _rdmsr() { rdmsr(); }
+    void _rdpmc() { rdpmc(); }
+    void _rdtsc() { rdtsc(); }
+    void _wait() { wait(); }
+    void _wbinvd() { wbinvd(); }
+    void _wrmsr() { wrmsr(); }
+    void _xlatb() { xlatb(); }
+    void _popf() { popf(); }
+    void _pushf() { pushf(); }
 };
 
 
@@ -248,11 +291,230 @@ VALUE RXbyak_mulsd(VALUE self, VALUE a1, VALUE a2) {
     return Qnil;
 }
 
-extern "C" 
-VALUE RXbyak_ret(VALUE self) {
-    RXbyakGenerator* rx;
-    Data_Get_Struct(self, RXbyakGenerator, rx);
+extern "C" VALUE RXbyak_ret(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
     rx->_ret();
+    return Qnil;
+}
+
+extern "C" VALUE RXbyak_aaa(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_aaa();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_aad(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_aad();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_aam(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_aam();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_aas(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_aas();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_daa(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_daa();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_das(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_das();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_popad(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_popad();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_popfd(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_popfd();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_pusha(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_pusha();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_pushad(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_pushad();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_pushfd(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_pushfd();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_popa(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_popa();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_cbw(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_cbw();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_cdq(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_cdq();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_clc(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_clc();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_cld(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_cld();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_cli(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_cli();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_cmc(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_cmc();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_cpuid(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_cpuid();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_cwd(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_cwd();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_cwde(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_cwde();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_lahf(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_lahf();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_lock(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_lock();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_nop(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_nop();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_sahf(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_sahf();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_stc(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_stc();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_std(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_std();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_sti(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_sti();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_emms(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_emms();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_pause(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_pause();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_sfence(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_sfence();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_lfence(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_lfence();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_mfence(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_mfence();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_monitor(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_monitor();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_mwait(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_mwait();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_rdmsr(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_rdmsr();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_rdpmc(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_rdpmc();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_rdtsc(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_rdtsc();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_wait(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_wait();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_wbinvd(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_wbinvd();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_wrmsr(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_wrmsr();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_xlatb(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_xlatb();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_popf(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_popf();
+    return Qnil;
+}
+extern "C" VALUE RXbyak_pushf(VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_pushf();
     return Qnil;
 }
 
@@ -307,6 +569,51 @@ void Init_RXbyak(void) {
     rb_define_method(rb_cRXbyak, "movq", RB_FUNC(RXbyak_movq), 2);
     rb_define_method(rb_cRXbyak, "mulsd", RB_FUNC(RXbyak_mulsd), 2);
     rb_define_method(rb_cRXbyak, "ret", RB_FUNC(RXbyak_ret), 0);
+
+    rb_define_method(rb_cRXbyak, "aaa", RB_FUNC(RXbyak_aaa), 0);
+    rb_define_method(rb_cRXbyak, "aad", RB_FUNC(RXbyak_aad), 0);
+    rb_define_method(rb_cRXbyak, "aam", RB_FUNC(RXbyak_aam), 0);
+    rb_define_method(rb_cRXbyak, "aas", RB_FUNC(RXbyak_aas), 0);
+    rb_define_method(rb_cRXbyak, "daa", RB_FUNC(RXbyak_daa), 0);
+    rb_define_method(rb_cRXbyak, "das", RB_FUNC(RXbyak_das), 0);
+    rb_define_method(rb_cRXbyak, "popad", RB_FUNC(RXbyak_popad), 0);
+    rb_define_method(rb_cRXbyak, "popfd", RB_FUNC(RXbyak_popfd), 0);
+    rb_define_method(rb_cRXbyak, "pusha", RB_FUNC(RXbyak_pusha), 0);
+    rb_define_method(rb_cRXbyak, "pushad", RB_FUNC(RXbyak_pushad), 0);
+    rb_define_method(rb_cRXbyak, "pushfd", RB_FUNC(RXbyak_pushfd), 0);
+    rb_define_method(rb_cRXbyak, "popa", RB_FUNC(RXbyak_popa), 0);
+    rb_define_method(rb_cRXbyak, "cbw", RB_FUNC(RXbyak_cbw), 0);
+    rb_define_method(rb_cRXbyak, "cdq", RB_FUNC(RXbyak_cdq), 0);
+    rb_define_method(rb_cRXbyak, "clc", RB_FUNC(RXbyak_clc), 0);
+    rb_define_method(rb_cRXbyak, "cld", RB_FUNC(RXbyak_cld), 0);
+    rb_define_method(rb_cRXbyak, "cli", RB_FUNC(RXbyak_cli), 0);
+    rb_define_method(rb_cRXbyak, "cmc", RB_FUNC(RXbyak_cmc), 0);
+    rb_define_method(rb_cRXbyak, "cpuid", RB_FUNC(RXbyak_cpuid), 0);
+    rb_define_method(rb_cRXbyak, "cwd", RB_FUNC(RXbyak_cwd), 0);
+    rb_define_method(rb_cRXbyak, "cwde", RB_FUNC(RXbyak_cwde), 0);
+    rb_define_method(rb_cRXbyak, "lahf", RB_FUNC(RXbyak_lahf), 0);
+    rb_define_method(rb_cRXbyak, "lock", RB_FUNC(RXbyak_lock), 0);
+    rb_define_method(rb_cRXbyak, "nop", RB_FUNC(RXbyak_nop), 0);
+    rb_define_method(rb_cRXbyak, "sahf", RB_FUNC(RXbyak_sahf), 0);
+    rb_define_method(rb_cRXbyak, "stc", RB_FUNC(RXbyak_stc), 0);
+    rb_define_method(rb_cRXbyak, "std", RB_FUNC(RXbyak_std), 0);
+    rb_define_method(rb_cRXbyak, "sti", RB_FUNC(RXbyak_sti), 0);
+    rb_define_method(rb_cRXbyak, "emms", RB_FUNC(RXbyak_emms), 0);
+    rb_define_method(rb_cRXbyak, "pause", RB_FUNC(RXbyak_pause), 0);
+    rb_define_method(rb_cRXbyak, "sfence", RB_FUNC(RXbyak_sfence), 0);
+    rb_define_method(rb_cRXbyak, "lfence", RB_FUNC(RXbyak_lfence), 0);
+    rb_define_method(rb_cRXbyak, "mfence", RB_FUNC(RXbyak_mfence), 0);
+    rb_define_method(rb_cRXbyak, "monitor", RB_FUNC(RXbyak_monitor), 0);
+    rb_define_method(rb_cRXbyak, "mwait", RB_FUNC(RXbyak_mwait), 0);
+    rb_define_method(rb_cRXbyak, "rdmsr", RB_FUNC(RXbyak_rdmsr), 0);
+    rb_define_method(rb_cRXbyak, "rdpmc", RB_FUNC(RXbyak_rdpmc), 0);
+    rb_define_method(rb_cRXbyak, "rdtsc", RB_FUNC(RXbyak_rdtsc), 0);
+    rb_define_method(rb_cRXbyak, "wait", RB_FUNC(RXbyak_wait), 0);
+    rb_define_method(rb_cRXbyak, "wbinvd", RB_FUNC(RXbyak_wbinvd), 0);
+    rb_define_method(rb_cRXbyak, "wrmsr", RB_FUNC(RXbyak_wrmsr), 0);
+    rb_define_method(rb_cRXbyak, "xlatb", RB_FUNC(RXbyak_xlatb), 0);
+    rb_define_method(rb_cRXbyak, "popf", RB_FUNC(RXbyak_popf), 0);
+    rb_define_method(rb_cRXbyak, "pushf", RB_FUNC(RXbyak_pushf), 0);
 
     rb_define_method(rb_cRXbyak, "call", RB_FUNC(RXbyak_call), -1);
 }
