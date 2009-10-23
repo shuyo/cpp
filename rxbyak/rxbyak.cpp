@@ -141,10 +141,28 @@ public:
         movq(addr, reg);
     }
 
+    void _addsd(const VALUE& xmm_dest, const VALUE& xmm_src) {
+        const Xbyak::Xmm& dest = id2xmmx(xmm_dest);
+        const Xbyak::Xmm& src  = id2xmmx(xmm_src);
+        addsd(dest, src);
+    }
+
+    void _subsd(const VALUE& xmm_dest, const VALUE& xmm_src) {
+        const Xbyak::Xmm& dest = id2xmmx(xmm_dest);
+        const Xbyak::Xmm& src  = id2xmmx(xmm_src);
+        subsd(dest, src);
+    }
+
     void _mulsd(const VALUE& xmm_dest, const VALUE& xmm_src) {
         const Xbyak::Xmm& dest = id2xmmx(xmm_dest);
         const Xbyak::Xmm& src  = id2xmmx(xmm_src);
         mulsd(dest, src);
+    }
+
+    void _divsd(const VALUE& xmm_dest, const VALUE& xmm_src) {
+        const Xbyak::Xmm& dest = id2xmmx(xmm_dest);
+        const Xbyak::Xmm& src  = id2xmmx(xmm_src);
+        divsd(dest, src);
     }
 
     void _ret(int imm = 0) { ret(imm); }
@@ -283,13 +301,31 @@ VALUE RXbyak_movq(VALUE self, const VALUE a1, const VALUE a2) {
     return Qnil;
 }
 
-extern "C" 
-VALUE RXbyak_mulsd(VALUE self, VALUE a1, VALUE a2) {
-    RXbyakGenerator* rx;
-    Data_Get_Struct(self, RXbyakGenerator, rx);
+
+extern "C" VALUE RXbyak_addsd(VALUE self, VALUE a1, VALUE a2) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_addsd(a1, a2);
+    return Qnil;
+}
+
+extern "C" VALUE RXbyak_subsd(VALUE self, VALUE a1, VALUE a2) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_subsd(a1, a2);
+    return Qnil;
+}
+
+extern "C" VALUE RXbyak_mulsd(VALUE self, VALUE a1, VALUE a2) {
+    RXBYAK_GENERATOR(self, rx);
     rx->_mulsd(a1, a2);
     return Qnil;
 }
+
+extern "C" VALUE RXbyak_divsd(VALUE self, VALUE a1, VALUE a2) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_divsd(a1, a2);
+    return Qnil;
+}
+
 
 extern "C" VALUE RXbyak_ret(VALUE self) {
     RXBYAK_GENERATOR(self, rx);
@@ -567,7 +603,10 @@ void Init_RXbyak(void) {
 
     rb_define_method(rb_cRXbyak, "mov", RB_FUNC(RXbyak_mov), 2);
     rb_define_method(rb_cRXbyak, "movq", RB_FUNC(RXbyak_movq), 2);
+    rb_define_method(rb_cRXbyak, "addsd", RB_FUNC(RXbyak_addsd), 2);
+    rb_define_method(rb_cRXbyak, "subsd", RB_FUNC(RXbyak_subsd), 2);
     rb_define_method(rb_cRXbyak, "mulsd", RB_FUNC(RXbyak_mulsd), 2);
+    rb_define_method(rb_cRXbyak, "divsd", RB_FUNC(RXbyak_divsd), 2);
     rb_define_method(rb_cRXbyak, "ret", RB_FUNC(RXbyak_ret), 0);
 
     rb_define_method(rb_cRXbyak, "aaa", RB_FUNC(RXbyak_aaa), 0);
