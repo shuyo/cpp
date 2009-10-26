@@ -165,6 +165,47 @@ public:
         divsd(dest, src);
     }
 
+    void _pop(const VALUE& op1) {
+        const Xbyak::Reg& dest = id2reg(op1);
+        pop(dest);
+    }
+    void _push(const VALUE& op1) {
+        const Xbyak::Reg& dest = id2reg(op1);
+        push(dest);
+    }
+    void _dec(const VALUE& op1) {
+        const Xbyak::Reg& dest = id2reg(op1);
+        dec(dest);
+    }
+    void _inc(const VALUE& op1) {
+        const Xbyak::Reg& dest = id2reg(op1);
+        inc(dest);
+    }
+    void _div(const VALUE& op1) {
+        const Xbyak::Reg& dest = id2reg(op1);
+        div(dest);
+    }
+    void _idiv(const VALUE& op1) {
+        const Xbyak::Reg& dest = id2reg(op1);
+        idiv(dest);
+    }
+    void _imul(const VALUE& op1) {
+        const Xbyak::Reg& dest = id2reg(op1);
+        imul(dest);
+    }
+    void _mul(const VALUE& op1) {
+        const Xbyak::Reg& dest = id2reg(op1);
+        mul(dest);
+    }
+    void _neg(const VALUE& op1) {
+        const Xbyak::Reg& dest = id2reg(op1);
+        neg(dest);
+    }
+    void _not(const VALUE& op1) {
+        const Xbyak::Reg& dest = id2reg(op1);
+        not(dest);
+    }
+
     void _ret(int imm = 0) { ret(imm); }
     void _aaa() { aaa(); }
     void _aad() { aad(); }
@@ -554,11 +595,62 @@ extern "C" VALUE RXbyak_pushf(VALUE self) {
     return Qnil;
 }
 
+extern "C" VALUE RXbyak_pop(VALUE self, VALUE op1) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_pop(op1);
+    return Qnil;
+}
+extern "C" VALUE RXbyak_push(VALUE self, VALUE op1) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_push(op1);
+    return Qnil;
+}
+extern "C" VALUE RXbyak_dec(VALUE self, VALUE op1) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_dec(op1);
+    return Qnil;
+}
+extern "C" VALUE RXbyak_inc(VALUE self, VALUE op1) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_inc(op1);
+    return Qnil;
+}
+extern "C" VALUE RXbyak_div(VALUE self, VALUE op1) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_div(op1);
+    return Qnil;
+}
+extern "C" VALUE RXbyak_idiv(VALUE self, VALUE op1) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_idiv(op1);
+    return Qnil;
+}
+extern "C" VALUE RXbyak_imul(VALUE self, VALUE op1) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_imul(op1);
+    return Qnil;
+}
+extern "C" VALUE RXbyak_mul(VALUE self, VALUE op1) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_mul(op1);
+    return Qnil;
+}
+extern "C" VALUE RXbyak_neg(VALUE self, VALUE op1) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_neg(op1);
+    return Qnil;
+}
+extern "C" VALUE RXbyak_not(VALUE self, VALUE op1) {
+    RXBYAK_GENERATOR(self, rx);
+    rx->_not(op1);
+    return Qnil;
+}
 
-// call the generated code
+
+// exec the generated code
 
 extern "C" 
-VALUE RXbyak_call(int argc, const VALUE* argv, VALUE self) {
+VALUE RXbyak_exec(int argc, const VALUE* argv, VALUE self) {
     RXbyakGenerator* rx;
     Data_Get_Struct(self, RXbyakGenerator, rx);
 
@@ -654,6 +746,17 @@ void Init_RXbyak(void) {
     rb_define_method(rb_cRXbyak, "popf", RB_FUNC(RXbyak_popf), 0);
     rb_define_method(rb_cRXbyak, "pushf", RB_FUNC(RXbyak_pushf), 0);
 
-    rb_define_method(rb_cRXbyak, "call", RB_FUNC(RXbyak_call), -1);
+    rb_define_method(rb_cRXbyak, "pop", RB_FUNC(RXbyak_pop), 1);
+    rb_define_method(rb_cRXbyak, "push", RB_FUNC(RXbyak_push), 1);
+    rb_define_method(rb_cRXbyak, "dec", RB_FUNC(RXbyak_dec), 1);
+    rb_define_method(rb_cRXbyak, "inc", RB_FUNC(RXbyak_inc), 1);
+    rb_define_method(rb_cRXbyak, "div", RB_FUNC(RXbyak_div), 1);
+    rb_define_method(rb_cRXbyak, "idiv", RB_FUNC(RXbyak_idiv), 1);
+    rb_define_method(rb_cRXbyak, "imul", RB_FUNC(RXbyak_imul), 1);
+    rb_define_method(rb_cRXbyak, "mul", RB_FUNC(RXbyak_mul), 1);
+    rb_define_method(rb_cRXbyak, "neg", RB_FUNC(RXbyak_neg), 1);
+    rb_define_method(rb_cRXbyak, "not", RB_FUNC(RXbyak_not), 1);
+
+    rb_define_method(rb_cRXbyak, "exec", RB_FUNC(RXbyak_exec), -1);
 }
 

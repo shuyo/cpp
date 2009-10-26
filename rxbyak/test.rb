@@ -9,5 +9,5 @@ rx.mov :eax, [:esp, 4]
 rx.movq [:eax], :xmm0
 rx.ret
 
-puts rx.call(256.0, 256.0)
-puts rx.call(123.45, 678.9)
+puts rx.exec(256.0, 256.0)
+puts rx.exec(123.45, 678.9)
