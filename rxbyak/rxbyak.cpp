@@ -118,6 +118,13 @@ public:
         regmap[rb_intern("xmm7")] = &xmm7;
     }
 
+    bool is_reg(const VALUE& x) {
+        Check_Type(x, T_SYMBOL);
+        ID id = rb_to_id(x);
+        Regmap::const_iterator it = regmap.find(id);
+        return (it!=regmap.end());
+    }
+
     void _mov_reg_long(const VALUE& dist, long x) {
         const Xbyak::Operand& reg1 = id2reg(dist);
         mov(reg1, x);
@@ -647,6 +654,13 @@ extern "C" VALUE RXbyak_not(VALUE self, VALUE op1) {
 }
 
 
+extern "C" 
+VALUE RXbyak_method_missing(int argc, const VALUE* argv, VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    if (rx->is_reg(argv[0])) return argv[0];
+    rb_raise(rb_eNoMethodError, "not supported method");
+}
+
 // exec the generated code
 
 extern "C" 
@@ -756,6 +770,8 @@ void Init_RXbyak(void) {
     rb_define_method(rb_cRXbyak, "mul", RB_FUNC(RXbyak_mul), 1);
     rb_define_method(rb_cRXbyak, "neg", RB_FUNC(RXbyak_neg), 1);
     rb_define_method(rb_cRXbyak, "not", RB_FUNC(RXbyak_not), 1);
+
+    rb_define_method(rb_cRXbyak, "method_missing", RB_FUNC(RXbyak_method_missing), -1);
 
     rb_define_method(rb_cRXbyak, "exec", RB_FUNC(RXbyak_exec), -1);
 }
