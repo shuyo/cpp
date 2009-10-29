@@ -10,7 +10,27 @@
 #define RB_FUNC(f) reinterpret_cast<VALUE (*)(...)>(f)
 
 #define RXBYAK_GENERATOR(s, x) RXbyakGenerator* x;Data_Get_Struct(s, RXbyakGenerator, x)
+#define RXBYAK_CALL1(s, m, a1) RXBYAK_GENERATOR(s,rx);rx->m(a1);return Qnil
 
+#define RXBYAK_JUMP(s, m, argc, argv) \
+    RXBYAK_GENERATOR(s, rx); \
+	if (argc==1) { \
+		rx->_##m(argv[0], Qnil); \
+	} else if (argc==2) { \
+		rx->_##m(argv[0], argv[1]); \
+	} else { \
+	    rb_raise(rb_eArgError, "wrong number of arguments"); \
+	} \
+    return Qnil;
+
+#define RXBYAK_JUMP_IMPL(m, dest, jump_type) \
+    Check_Type(dest, T_SYMBOL); \
+	const char* label = rb_id2name(rb_to_id(dest)); \
+	if (jump_type != Qnil) { \
+        m(label); /* TODO */ \
+	} else { \
+        m(label); \
+	} \
 
 /**
  * @brief RXbyak implementation
@@ -212,6 +232,107 @@ public:
         const Xbyak::Reg& dest = id2reg(op1);
         not(dest);
     }
+    void set_label(const VALUE& x) {
+        Check_Type(x, T_SYMBOL);
+        const char* label = rb_id2name(rb_to_id(x));
+        L(label);
+    }
+
+
+    void _jmp(const VALUE& dest, const VALUE& jump_type) {
+        Check_Type(dest, T_SYMBOL);
+        const char* label = rb_id2name(rb_to_id(dest));
+        if (jump_type != Qnil) {
+            jmp(label); /* TODO */
+        } else {
+            jmp(label);
+        } \
+    }
+    void _jo(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jo, dest, jump_type);
+    }
+    void _jno(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jno, dest, jump_type);
+    }
+    void _jb(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jb, dest, jump_type);
+    }
+    void _jnae(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jnae, dest, jump_type);
+    }
+    void _jnb(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jnb, dest, jump_type);
+    }
+    void _jae(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jae, dest, jump_type);
+    }
+    void _je(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(je, dest, jump_type);
+    }
+    void _jz(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jz, dest, jump_type);
+    }
+    void _jne(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jne, dest, jump_type);
+    }
+    void _jnz(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jnz, dest, jump_type);
+    }
+    void _jbe(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jbe, dest, jump_type);
+    }
+    void _jna(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jna, dest, jump_type);
+    }
+    void _jnbe(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jnbe, dest, jump_type);
+    }
+    void _ja(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(ja, dest, jump_type);
+    }
+    void _js(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(js, dest, jump_type);
+    }
+    void _jns(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jns, dest, jump_type);
+    }
+    void _jp(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jp, dest, jump_type);
+    }
+    void _jpe(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jpe, dest, jump_type);
+    }
+    void _jnp(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jnp, dest, jump_type);
+    }
+    void _jpo(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jpo, dest, jump_type);
+    }
+    void _jl(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jl, dest, jump_type);
+    }
+    void _jnge(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jnge, dest, jump_type);
+    }
+    void _jnl(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jnl, dest, jump_type);
+    }
+    void _jge(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jge, dest, jump_type);
+    }
+    void _jle(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jle, dest, jump_type);
+    }
+    void _jng(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jng, dest, jump_type);
+    }
+    void _jnle(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jnle, dest, jump_type);
+    }
+    void _jg(const VALUE& dest, const VALUE& jump_type) {
+        RXBYAK_JUMP_IMPL(jg, dest, jump_type);
+    }
+
 
     void _ret(int imm = 0) { ret(imm); }
     void _aaa() { aaa(); }
@@ -269,8 +390,7 @@ public:
 
 extern "C" 
 VALUE RXbyak_mov(VALUE self, VALUE a1, VALUE a2) {
-    RXbyakGenerator* rx;
-    Data_Get_Struct(self, RXbyakGenerator, rx);
+    RXBYAK_GENERATOR(self, rx);
 
     switch (TYPE(a1)) {
     case T_ARRAY:
@@ -310,8 +430,7 @@ VALUE RXbyak_mov(VALUE self, VALUE a1, VALUE a2) {
 
 extern "C" 
 VALUE RXbyak_movq(VALUE self, const VALUE a1, const VALUE a2) {
-    RXbyakGenerator* rx;
-    Data_Get_Struct(self, RXbyakGenerator, rx);
+    RXBYAK_GENERATOR(self, rx);
 
     switch (TYPE(a1)) {
     case T_ARRAY:
@@ -653,6 +772,43 @@ extern "C" VALUE RXbyak_not(VALUE self, VALUE op1) {
     return Qnil;
 }
 
+extern "C" VALUE RXbyak_label(VALUE self, VALUE label) {
+    RXBYAK_CALL1(self, set_label, label);
+}
+
+
+extern "C" VALUE RXbyak_jmp(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jmp, argc, argv); }
+extern "C" VALUE RXbyak_jo(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jo, argc, argv); }
+extern "C" VALUE RXbyak_jno(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jno, argc, argv); }
+extern "C" VALUE RXbyak_jb(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jb, argc, argv); }
+extern "C" VALUE RXbyak_jnae(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jnae, argc, argv); }
+extern "C" VALUE RXbyak_jnb(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jnb, argc, argv); }
+extern "C" VALUE RXbyak_jae(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jae, argc, argv); }
+extern "C" VALUE RXbyak_je(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, je, argc, argv); }
+extern "C" VALUE RXbyak_jz(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jz, argc, argv); }
+extern "C" VALUE RXbyak_jne(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jne, argc, argv); }
+extern "C" VALUE RXbyak_jnz(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jnz, argc, argv); }
+extern "C" VALUE RXbyak_jbe(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jbe, argc, argv); }
+extern "C" VALUE RXbyak_jna(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jna, argc, argv); }
+extern "C" VALUE RXbyak_jnbe(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jnbe, argc, argv); }
+extern "C" VALUE RXbyak_ja(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, ja, argc, argv); }
+extern "C" VALUE RXbyak_js(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, js, argc, argv); }
+extern "C" VALUE RXbyak_jns(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jns, argc, argv); }
+extern "C" VALUE RXbyak_jp(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jp, argc, argv); }
+extern "C" VALUE RXbyak_jpe(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jpe, argc, argv); }
+extern "C" VALUE RXbyak_jnp(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jnp, argc, argv); }
+extern "C" VALUE RXbyak_jpo(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jpo, argc, argv); }
+extern "C" VALUE RXbyak_jl(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jl, argc, argv); }
+extern "C" VALUE RXbyak_jnge(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jnge, argc, argv); }
+extern "C" VALUE RXbyak_jnl(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jnl, argc, argv); }
+extern "C" VALUE RXbyak_jge(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jge, argc, argv); }
+extern "C" VALUE RXbyak_jle(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jle, argc, argv); }
+extern "C" VALUE RXbyak_jng(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jng, argc, argv); }
+extern "C" VALUE RXbyak_jnle(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jnle, argc, argv); }
+extern "C" VALUE RXbyak_jg(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jg, argc, argv); }
+
+
+
 
 extern "C" 
 VALUE RXbyak_method_missing(int argc, const VALUE* argv, VALUE self) {
@@ -665,12 +821,7 @@ VALUE RXbyak_method_missing(int argc, const VALUE* argv, VALUE self) {
 
 extern "C" 
 VALUE RXbyak_exec(int argc, const VALUE* argv, VALUE self) {
-    RXbyakGenerator* rx;
-    Data_Get_Struct(self, RXbyakGenerator, rx);
-
-    //int (*proc)() = (int (*)())rx->getCode();
-    //VALUE r = INT2FIX(proc());
-
+    RXBYAK_GENERATOR(self, rx);
     if (argc<2) rb_raise(rb_eTypeError, "too few parameters");
     Check_Type(argv[0], T_FLOAT);
     Check_Type(argv[1], T_FLOAT);
@@ -770,6 +921,38 @@ void Init_RXbyak(void) {
     rb_define_method(rb_cRXbyak, "mul", RB_FUNC(RXbyak_mul), 1);
     rb_define_method(rb_cRXbyak, "neg", RB_FUNC(RXbyak_neg), 1);
     rb_define_method(rb_cRXbyak, "not", RB_FUNC(RXbyak_not), 1);
+
+    rb_define_method(rb_cRXbyak, "L", RB_FUNC(RXbyak_label), 1);
+
+    rb_define_method(rb_cRXbyak, "jmp", RB_FUNC(RXbyak_jmp), -1);
+    rb_define_method(rb_cRXbyak, "jo", RB_FUNC(RXbyak_jo), -1);
+    rb_define_method(rb_cRXbyak, "jno", RB_FUNC(RXbyak_jno), -1);
+    rb_define_method(rb_cRXbyak, "jb", RB_FUNC(RXbyak_jb), -1);
+    rb_define_method(rb_cRXbyak, "jnae", RB_FUNC(RXbyak_jnae), -1);
+    rb_define_method(rb_cRXbyak, "jnb", RB_FUNC(RXbyak_jnb), -1);
+    rb_define_method(rb_cRXbyak, "jae", RB_FUNC(RXbyak_jae), -1);
+    rb_define_method(rb_cRXbyak, "je", RB_FUNC(RXbyak_je), -1);
+    rb_define_method(rb_cRXbyak, "jz", RB_FUNC(RXbyak_jz), -1);
+    rb_define_method(rb_cRXbyak, "jne", RB_FUNC(RXbyak_jne), -1);
+    rb_define_method(rb_cRXbyak, "jnz", RB_FUNC(RXbyak_jnz), -1);
+    rb_define_method(rb_cRXbyak, "jbe", RB_FUNC(RXbyak_jbe), -1);
+    rb_define_method(rb_cRXbyak, "jna", RB_FUNC(RXbyak_jna), -1);
+    rb_define_method(rb_cRXbyak, "jnbe", RB_FUNC(RXbyak_jnbe), -1);
+    rb_define_method(rb_cRXbyak, "ja", RB_FUNC(RXbyak_ja), -1);
+    rb_define_method(rb_cRXbyak, "js", RB_FUNC(RXbyak_js), -1);
+    rb_define_method(rb_cRXbyak, "jns", RB_FUNC(RXbyak_jns), -1);
+    rb_define_method(rb_cRXbyak, "jp", RB_FUNC(RXbyak_jp), -1);
+    rb_define_method(rb_cRXbyak, "jpe", RB_FUNC(RXbyak_jpe), -1);
+    rb_define_method(rb_cRXbyak, "jnp", RB_FUNC(RXbyak_jnp), -1);
+    rb_define_method(rb_cRXbyak, "jpo", RB_FUNC(RXbyak_jpo), -1);
+    rb_define_method(rb_cRXbyak, "jl", RB_FUNC(RXbyak_jl), -1);
+    rb_define_method(rb_cRXbyak, "jnge", RB_FUNC(RXbyak_jnge), -1);
+    rb_define_method(rb_cRXbyak, "jnl", RB_FUNC(RXbyak_jnl), -1);
+    rb_define_method(rb_cRXbyak, "jge", RB_FUNC(RXbyak_jge), -1);
+    rb_define_method(rb_cRXbyak, "jle", RB_FUNC(RXbyak_jle), -1);
+    rb_define_method(rb_cRXbyak, "jng", RB_FUNC(RXbyak_jng), -1);
+    rb_define_method(rb_cRXbyak, "jnle", RB_FUNC(RXbyak_jnle), -1);
+    rb_define_method(rb_cRXbyak, "jg", RB_FUNC(RXbyak_jg), -1);
 
     rb_define_method(rb_cRXbyak, "method_missing", RB_FUNC(RXbyak_method_missing), -1);
 
