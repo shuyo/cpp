@@ -11,6 +11,7 @@
 
 #define RXBYAK_GENERATOR(s, x) RXbyakGenerator* x;Data_Get_Struct(s, RXbyakGenerator, x)
 #define RXBYAK_CALL1(s, m, a1) RXBYAK_GENERATOR(s,rx);rx->m(a1);return Qnil
+#define RXBYAK_CALL2(s, m, a1, a2) RXBYAK_GENERATOR(s,rx);rx->m(a1, a2);return Qnil
 
 #define RXBYAK_JUMP(s, m, argc, argv) \
     RXBYAK_GENERATOR(s, rx); \
@@ -145,27 +146,57 @@ public:
         return (it!=regmap.end());
     }
 
-    void _mov_reg_long(const VALUE& dist, long x) {
-        const Xbyak::Operand& reg1 = id2reg(dist);
-        mov(reg1, x);
+
+    void _mov(const VALUE& dist, const VALUE& src) {
+        switch (TYPE(dist)) {
+        case T_ARRAY:
+            switch (TYPE(src)) {
+            case T_ARRAY:
+            case T_SYMBOL:
+            case T_FIXNUM:
+                rb_raise(rb_eStandardError, "not yet support");
+                return;
+            }
+        case T_SYMBOL:
+            switch (TYPE(src)) {
+            case T_ARRAY:
+                mov(id2reg(dist), ary2address(src));
+                return;
+            case T_FIXNUM:
+                mov(id2reg(dist), NUM2LONG(src));
+                return;
+            case T_SYMBOL:
+                rb_raise(rb_eStandardError, "not yet support");
+                return;
+            }
+        }
+        rb_raise(rb_eArgError, "illegal operand");
     }
 
-    void _mov_reg_address(const VALUE& dist, const VALUE& src) {
-        const Xbyak::Operand& reg = id2reg(dist);
-        const Xbyak::Address addr = ary2address(src);
-        mov(reg, addr);
-    }
-
-    void _movq_reg_address(const VALUE& dist, const VALUE& src) {
-        const Xbyak::Mmx& reg = id2mmx(dist);
-        const Xbyak::Address addr = ary2address(src);
-        movq(reg, addr);
-    }
-
-    void _movq_address_reg(const VALUE& dist, const VALUE& src) {
-        const Xbyak::Address addr = ary2address(dist);
-        const Xbyak::Mmx& reg = id2mmx(src);
-        movq(addr, reg);
+    void _movq(const VALUE& dist, const VALUE& src) {
+        switch (TYPE(dist)) {
+        case T_ARRAY:
+            switch (TYPE(src)) {
+            case T_SYMBOL:
+                movq(ary2address(dist), id2mmx(src));
+                return;
+            case T_ARRAY:
+            //case T_FLOAT:
+                rb_raise(rb_eStandardError, "not yet support");
+                return;
+            }
+        case T_SYMBOL:
+            switch (TYPE(src)) {
+            case T_ARRAY:
+                movq(id2mmx(dist), ary2address(src));
+                return;
+            case T_SYMBOL:
+            //case T_FLOAT:
+                rb_raise(rb_eStandardError, "not yet support");
+                return;
+            }
+        }
+        rb_raise(rb_eArgError, "illegal operand");
     }
 
     void _addsd(const VALUE& xmm_dest, const VALUE& xmm_src) {
@@ -236,6 +267,15 @@ public:
         Check_Type(x, T_SYMBOL);
         const char* label = rb_id2name(rb_to_id(x));
         L(label);
+    }
+
+    void _add(const VALUE& dest, const VALUE& src) {
+    }
+    void _adc(const VALUE& dest, const VALUE& src) {
+    }
+    void _sub(const VALUE& dest, const VALUE& src) {
+    }
+    void _sbb(const VALUE& dest, const VALUE& src) {
     }
 
 
@@ -388,86 +428,8 @@ public:
 
 // IA32 operand
 
-extern "C" 
-VALUE RXbyak_mov(VALUE self, VALUE a1, VALUE a2) {
-    RXBYAK_GENERATOR(self, rx);
-
-    switch (TYPE(a1)) {
-    case T_ARRAY:
-        switch (TYPE(a2)) {
-        case T_ARRAY:
-        case T_SYMBOL:
-        case T_FIXNUM:
-            rb_raise(rb_eStandardError, "not yet support");
-            break;
-        default:
-            rb_raise(rb_eArgError, "hoge");
-            break;
-        }
-        break;
-    case T_SYMBOL:
-        switch (TYPE(a2)) {
-        case T_ARRAY:
-            rx->_mov_reg_address(a1, a2);
-            break;
-        case T_SYMBOL:
-            rb_raise(rb_eStandardError, "not yet support");
-            break;
-        case T_FIXNUM:
-            rx->_mov_reg_long(a1, NUM2LONG(a2));
-            break;
-        default:
-            rb_raise(rb_eArgError, "hoge");
-            break;
-        }
-        break;
-    default:
-        rb_raise(rb_eArgError, "hoge");
-        break;
-    }
-    return Qnil;
-}
-
-extern "C" 
-VALUE RXbyak_movq(VALUE self, const VALUE a1, const VALUE a2) {
-    RXBYAK_GENERATOR(self, rx);
-
-    switch (TYPE(a1)) {
-    case T_ARRAY:
-        switch (TYPE(a2)) {
-        case T_SYMBOL:
-            rx->_movq_address_reg(a1, a2);
-            break;
-        case T_ARRAY:
-        case T_FLOAT:
-            rb_raise(rb_eStandardError, "not yet support");
-            break;
-        default:
-            rb_raise(rb_eArgError, "hoge");
-            break;
-        }
-        break;
-    case T_SYMBOL:
-        switch (TYPE(a2)) {
-        case T_ARRAY:
-            rx->_movq_reg_address(a1, a2);
-            break;
-        case T_SYMBOL:
-        case T_FLOAT:
-            rb_raise(rb_eStandardError, "not yet support");
-            break;
-        default:
-            rb_raise(rb_eArgError, "hoge");
-            break;
-        }
-        break;
-    default:
-        rb_raise(rb_eArgError, "hoge");
-        break;
-    }
-    return Qnil;
-}
-
+extern "C" VALUE RXbyak_mov(VALUE self, VALUE a1, VALUE a2) { RXBYAK_CALL2(self, _mov, a1, a2); }
+extern "C" VALUE RXbyak_movq(VALUE self, VALUE a1, VALUE a2) { RXBYAK_CALL2(self, _movq, a1, a2); }
 
 extern "C" VALUE RXbyak_addsd(VALUE self, VALUE a1, VALUE a2) {
     RXBYAK_GENERATOR(self, rx);
@@ -766,15 +728,14 @@ extern "C" VALUE RXbyak_neg(VALUE self, VALUE op1) {
     rx->_neg(op1);
     return Qnil;
 }
-extern "C" VALUE RXbyak_not(VALUE self, VALUE op1) {
-    RXBYAK_GENERATOR(self, rx);
-    rx->_not(op1);
-    return Qnil;
-}
+extern "C" VALUE RXbyak_not(VALUE self, VALUE op1) { RXBYAK_CALL1(self, _not, op1); }
 
-extern "C" VALUE RXbyak_label(VALUE self, VALUE label) {
-    RXBYAK_CALL1(self, set_label, label);
-}
+extern "C" VALUE RXbyak_label(VALUE self, VALUE label) { RXBYAK_CALL1(self, set_label, label); }
+
+extern "C" VALUE RXbyak_add(VALUE self, VALUE a1, VALUE a2) { RXBYAK_CALL2(self, _add, a1, a2); }
+extern "C" VALUE RXbyak_adc(VALUE self, VALUE a1, VALUE a2) { RXBYAK_CALL2(self, _adc, a1, a2); }
+extern "C" VALUE RXbyak_sub(VALUE self, VALUE a1, VALUE a2) { RXBYAK_CALL2(self, _sub, a1, a2); }
+extern "C" VALUE RXbyak_sbb(VALUE self, VALUE a1, VALUE a2) { RXBYAK_CALL2(self, _sbb, a1, a2); }
 
 
 extern "C" VALUE RXbyak_jmp(int argc, const VALUE* argv, VALUE self) { RXBYAK_JUMP(self, jmp, argc, argv); }
@@ -865,6 +826,11 @@ void Init_RXbyak(void) {
     rb_define_method(rb_cRXbyak, "mulsd", RB_FUNC(RXbyak_mulsd), 2);
     rb_define_method(rb_cRXbyak, "divsd", RB_FUNC(RXbyak_divsd), 2);
     rb_define_method(rb_cRXbyak, "ret", RB_FUNC(RXbyak_ret), 0);
+
+    rb_define_method(rb_cRXbyak, "add", RB_FUNC(RXbyak_add), 2);
+    rb_define_method(rb_cRXbyak, "adc", RB_FUNC(RXbyak_adc), 2);
+    rb_define_method(rb_cRXbyak, "sub", RB_FUNC(RXbyak_sub), 2);
+    rb_define_method(rb_cRXbyak, "sbb", RB_FUNC(RXbyak_sbb), 2);
 
     rb_define_method(rb_cRXbyak, "aaa", RB_FUNC(RXbyak_aaa), 0);
     rb_define_method(rb_cRXbyak, "aad", RB_FUNC(RXbyak_aad), 0);
