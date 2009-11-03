@@ -1,9 +1,10 @@
 require "mkmf"
 if RUBY_PLATFORM=~/mswin/
-  $CFLAGS = "/EHsc /D_MSC_VER=1200 /DWIN32_LEAN_AND_MEAN /MT"
+  $CFLAGS = "-EHsc -DWIN32_LEAN_AND_MEAN -Zi"
+  #$CFLAGS += " /D_MSC_VER=1200"
 else
   $CFLAGS = "-g -fno-operator-names"
+  $LDFLAGS = "-lstdc++"
 end
-$LDFLAGS = "-lstdc++"
 create_makefile("RXbyak")
 
