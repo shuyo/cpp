@@ -147,8 +147,8 @@ public:
     }
 
 
-    void _mov(const VALUE& dist, const VALUE& src) {
-        switch (TYPE(dist)) {
+    void _mov(const VALUE& dest, const VALUE& src) {
+        switch (TYPE(dest)) {
         case T_ARRAY:
             switch (TYPE(src)) {
             case T_ARRAY:
@@ -160,10 +160,10 @@ public:
         case T_SYMBOL:
             switch (TYPE(src)) {
             case T_ARRAY:
-                mov(id2reg(dist), ary2address(src));
+                mov(id2reg(dest), ary2address(src));
                 return;
             case T_FIXNUM:
-                mov(id2reg(dist), NUM2LONG(src));
+                mov(id2reg(dest), NUM2LONG(src));
                 return;
             case T_SYMBOL:
                 rb_raise(rb_eStandardError, "not yet support");
@@ -173,12 +173,12 @@ public:
         rb_raise(rb_eArgError, "illegal operand");
     }
 
-    void _movq(const VALUE& dist, const VALUE& src) {
-        switch (TYPE(dist)) {
+    void _movq(const VALUE& dest, const VALUE& src) {
+        switch (TYPE(dest)) {
         case T_ARRAY:
             switch (TYPE(src)) {
             case T_SYMBOL:
-                movq(ary2address(dist), id2mmx(src));
+                movq(ary2address(dest), id2mmx(src));
                 return;
             case T_ARRAY:
             //case T_FLOAT:
@@ -188,7 +188,7 @@ public:
         case T_SYMBOL:
             switch (TYPE(src)) {
             case T_ARRAY:
-                movq(id2mmx(dist), ary2address(src));
+                movq(id2mmx(dest), ary2address(src));
                 return;
             case T_SYMBOL:
             //case T_FLOAT:
@@ -270,6 +270,30 @@ public:
     }
 
     void _add(const VALUE& dest, const VALUE& src) {
+        switch (TYPE(dest)) {
+        case T_ARRAY:
+            switch (TYPE(src)) {
+            case T_SYMBOL:
+                add(ary2address(dest), id2reg(src));
+                return;
+            case T_FIXNUM:
+                add(ary2address(dest), NUM2LONG(src));
+                return;
+            }
+        case T_SYMBOL:
+            switch (TYPE(src)) {
+            case T_ARRAY:
+                add(id2reg(dest), ary2address(src));
+                return;
+            case T_FIXNUM:
+                add(id2reg(dest), NUM2LONG(src));
+                return;
+            case T_SYMBOL:
+                add(id2reg(dest), id2reg(src));
+                return;
+            }
+        }
+        rb_raise(rb_eArgError, "illegal operand");
     }
     void _adc(const VALUE& dest, const VALUE& src) {
     }
