@@ -9,6 +9,11 @@
 #include <ruby.h>
 #define RB_FUNC(f) reinterpret_cast<VALUE (*)(...)>(f)
 
+// for Ruby 1.8
+#ifndef RFLOAT_VALUE
+#define RFLOAT_VALUE(v) (RFLOAT(v)->value)
+#endif
+
 #define RXBYAK_GENERATOR(s, x) RXbyakGenerator* x;Data_Get_Struct(s, RXbyakGenerator, x)
 
 
@@ -678,7 +683,7 @@ VALUE RXbyak_exec(int argc, const VALUE* argv, VALUE self) {
     double result=0;
 
     void (*proc)(double*, const double*, const double*) = (void (*)(double*, const double*, const double*))rx->getCode();
-    proc(&result, &RFLOAT(argv[0])->value, &RFLOAT(argv[1])->value);
+    proc(&result, &RFLOAT_VALUE(argv[0]), &RFLOAT_VALUE(argv[1]));
     VALUE r = rb_float_new(result);
 
     return r;
