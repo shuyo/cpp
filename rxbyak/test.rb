@@ -14,5 +14,5 @@ L:loop
 end
 rx.code
 
-puts rx.exec(256.0, 256.0)
-puts rx.exec(123.45, 678.9)
+puts rx.float_call(256.0, 256.0)
+puts rx.float_call(123.45, 678.9)

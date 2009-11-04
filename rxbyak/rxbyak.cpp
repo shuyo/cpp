@@ -1,7 +1,6 @@
 /**
  * RXbyak - Xbyak for Ruby
- * 
- * @author Nakatani Shuyo.
+ * (c)2009 nakatani shuyo
  */
 
 #include <map>
@@ -37,6 +36,32 @@
 	} else { \
         m(label); \
 	} \
+
+#define RXBYAK_INTEGER_OPERATE(op) \
+    switch (TYPE(dest)) { \
+    case T_ARRAY: \
+        switch (TYPE(src)) { \
+        case T_SYMBOL: \
+            op(ary2address(dest), id2reg(src)); \
+            return; \
+        case T_FIXNUM: \
+            op(ary2address(dest), NUM2LONG(src)); \
+            return; \
+        } \
+    case T_SYMBOL: \
+        switch (TYPE(src)) { \
+        case T_ARRAY: \
+            op(id2reg(dest), ary2address(src)); \
+            return; \
+        case T_FIXNUM: \
+            op(id2reg(dest), NUM2LONG(src)); \
+            return; \
+        case T_SYMBOL: \
+            op(id2reg(dest), id2reg(src)); \
+            return; \
+        } \
+    } \
+    rb_raise(rb_eArgError, "illegal operand")
 
 /**
  * @brief RXbyak implementation
@@ -275,36 +300,16 @@ public:
     }
 
     void _add(const VALUE& dest, const VALUE& src) {
-        switch (TYPE(dest)) {
-        case T_ARRAY:
-            switch (TYPE(src)) {
-            case T_SYMBOL:
-                add(ary2address(dest), id2reg(src));
-                return;
-            case T_FIXNUM:
-                add(ary2address(dest), NUM2LONG(src));
-                return;
-            }
-        case T_SYMBOL:
-            switch (TYPE(src)) {
-            case T_ARRAY:
-                add(id2reg(dest), ary2address(src));
-                return;
-            case T_FIXNUM:
-                add(id2reg(dest), NUM2LONG(src));
-                return;
-            case T_SYMBOL:
-                add(id2reg(dest), id2reg(src));
-                return;
-            }
-        }
-        rb_raise(rb_eArgError, "illegal operand");
+        RXBYAK_INTEGER_OPERATE(add);
     }
     void _adc(const VALUE& dest, const VALUE& src) {
+        RXBYAK_INTEGER_OPERATE(adc);
     }
     void _sub(const VALUE& dest, const VALUE& src) {
+        RXBYAK_INTEGER_OPERATE(sub);
     }
     void _sbb(const VALUE& dest, const VALUE& src) {
+        RXBYAK_INTEGER_OPERATE(sbb);
     }
 
 
@@ -809,22 +814,33 @@ VALUE RXbyak_method_missing(int argc, const VALUE* argv, VALUE self) {
 
 // exec the generated code
 
-extern "C" 
-VALUE RXbyak_exec(int argc, const VALUE* argv, VALUE self) {
+int call_1arg(const Xbyak::uint8* code, const int a1) {
+    int (*proc)(const int) = (int (*)(const int))code;
+    return proc(a1);
+}
+int call_2args(const Xbyak::uint8* code, const int a1, const int a2) {
+    int (*proc)(const int, const int) = (int (*)(const int, const int))code;
+    return proc(a1, a2);
+}
+int call_3args(const Xbyak::uint8* code, const int a1, const int a2, const int a3) {
+    int (*proc)(const int, const int, const int) = (int (*)(const int, const int, const int))code;
+    return proc(a1, a2, a3);
+}
+extern "C" VALUE RXbyak_float_call(int argc, const VALUE* argv, VALUE self) {
     RXBYAK_GENERATOR(self, rx);
     if (argc<2) rb_raise(rb_eTypeError, "too few parameters");
     Check_Type(argv[0], T_FLOAT);
     Check_Type(argv[1], T_FLOAT);
 
-    double result=0;
-
-    void (*proc)(double*, const double*, const double*) = (void (*)(double*, const double*, const double*))rx->getCode();
-    proc(&result, &RFLOAT_VALUE(argv[0]), &RFLOAT_VALUE(argv[1]));
-    VALUE r = rb_float_new(result);
-
-    return r;
+    double retval;
+    call_3args(rx->getCode(), (int)(&retval), (int)(&RFLOAT_VALUE(argv[0])), (int)(&RFLOAT_VALUE(argv[1])));
+    return rb_float_new(retval);
 }
-
+extern "C" VALUE RXbyak_int_call(int argc, const VALUE* argv, VALUE self) {
+    RXBYAK_GENERATOR(self, rx);
+    int retval = call_1arg(rx->getCode(), NUM2INT(argv[0]) );
+    return INT2NUM(retval);
+}
 
 // allocator
 
@@ -951,6 +967,7 @@ void Init_RXbyak(void) {
 
     rb_define_method(rb_cRXbyak, "method_missing", RB_FUNC(RXbyak_method_missing), -1);
 
-    rb_define_method(rb_cRXbyak, "exec", RB_FUNC(RXbyak_exec), -1);
+    rb_define_method(rb_cRXbyak, "int_call", RB_FUNC(RXbyak_int_call), -1);
+    rb_define_method(rb_cRXbyak, "float_call", RB_FUNC(RXbyak_float_call), -1);
 }
 
