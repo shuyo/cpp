@@ -14,12 +14,17 @@ rx.code
 
 def sumup(x)
   s = 0
-  x.times {|i| s+=i }
+  begin
+    s += x
+    x -= 1
+  end while x>0
   s
 end
 
-N = 100000
-T = 100
+N = 10000
+T = 10000
+raise "not correct" if sumup(N) != rx.int_call(N)
+
 t1 = Time.now.to_f
 T.times do
   z = sumup(N)
