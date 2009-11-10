@@ -181,10 +181,8 @@ public:
         switch (TYPE(dest)) {
         case T_ARRAY:
             switch (TYPE(src)) {
-            case T_ARRAY:
             case T_SYMBOL:
-            case T_FIXNUM:
-                rb_raise(rb_eStandardError, "not yet support");
+                mov(ary2address(dest), id2reg(src));
                 return;
             }
         case T_SYMBOL:
@@ -196,7 +194,7 @@ public:
                 mov(id2reg(dest), NUM2LONG(src));
                 return;
             case T_SYMBOL:
-                rb_raise(rb_eStandardError, "not yet support");
+                mov(id2reg(dest), id2reg(src));
                 return;
             }
         }
